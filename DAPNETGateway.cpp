@@ -280,7 +280,20 @@ int CDAPNETGateway::run()
 		bool ok = m_dapnetNetwork->read();
 		if (!ok)
 			recover();
-
+/*
+		if (!ok) {
+			int i = 0;
+			const unsigned int backoff[] = {
+											 2000U,   4000U,   8000U,  10000U,  20000U, 
+											60000U, 120000U, 240000U, 480000U, 600000U };
+			while (i<10) {
+				CThread::sleep(backoff[i]);
+				recover();
+				if (i < 9)
+					i++;
+			}
+		}
+*/
 		CPOCSAGMessage* message = m_dapnetNetwork->readMessage();
 		if (message != NULL) {
 			bool found = true;
@@ -394,14 +407,21 @@ void CDAPNETGateway::sendMessages()
 
 bool CDAPNETGateway::recover()
 {
+	const unsigned int backoff[] = {2000u, 4000u, 8000u, 10000u, 20000u, 60000u, 120000u, 240000u, 480000u, 600000u};
+	int i=0;
+
 	for (;;) {
 		m_dapnetNetwork->close();
+		CThread::sleep(backoff[i]);
+		
 		bool ok = m_dapnetNetwork->open();
 		if (ok) {
 			ok = m_dapnetNetwork->login();
 			if (ok)
 				return true;
 		}
+		if (i < 9)
+			i++;
 	}
 
 	return false;
