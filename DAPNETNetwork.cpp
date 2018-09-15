@@ -21,6 +21,8 @@
 #include "Utils.h"
 #include "Log.h"
 
+#include <algorithm>
+
 #include <cstdio>
 #include <cassert>
 #include <cstring>
@@ -58,6 +60,8 @@ bool CDAPNETNetwork::login()
 {
 	LogMessage("Logging into DAPNET");
 
+	std::transform(m_callsign.begin(), m_callsign.end(), m_callsign.begin(), ::tolower);
+
 	char login[200U];
 	::snprintf(login, 200, "[MMDVM v%s %s %s]\r\n", m_version, m_callsign.c_str(), m_authKey.c_str());
 
@@ -69,8 +73,6 @@ bool CDAPNETNetwork::read()
 	unsigned char buffer[BUFFER_LENGTH];
 
 	int length = m_socket.read(buffer, BUFFER_LENGTH, 0U);
-	if (length < 0)
-		LogMessage ("socket.read: received error %d", length);
 	if (length == -1)		// Error
 		return false;
 	if (length == -2)		// Connection lost

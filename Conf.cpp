@@ -91,8 +91,12 @@ bool CConf::read()
 
     char* value = ::strtok(NULL, "\r\n");
 	if (section == SECTION_GENERAL) {
-		if (::strcmp(key, "Callsign") == 0)
-			m_callsign = value;
+		if (::strcmp(key, "Callsign") == 0) {
+			for (unsigned int i = 0U; value[i] != '\0'; i++) {
+				if (!::isspace(value[i]))
+					m_callsign.insert(m_callsign.end(), 1, value[i]);
+			}
+		}
 		else if (::strcmp(key, "WhiteList") == 0) {
 			char* p = ::strtok(value, ",\r\n");
 			while (p != NULL) {
@@ -125,8 +129,12 @@ bool CConf::read()
 			m_dapnetAddress = value;
 		else if (::strcmp(key, "Port") == 0)
 			m_dapnetPort = (unsigned int)::atoi(value);
-		else if (::strcmp(key, "AuthKey") == 0)
-			m_dapnetAuthKey = value;
+		else if (::strcmp(key, "AuthKey") == 0) {
+			for (unsigned int i = 0U; value[i] != '\0'; i++) {
+				if (!::isspace(value[i]))
+					m_dapnetAuthKey.insert(m_dapnetAuthKey.end(), 1, value[i]);
+			}
+		}
 		else if (::strcmp(key, "Debug") == 0)
 			m_dapnetDebug = ::atoi(value) == 1;
 	}
@@ -139,7 +147,7 @@ bool CConf::read()
 
 std::string CConf::getCallsign() const
 {
-  return m_callsign;
+        return m_callsign;
 }
 
 std::vector<uint32_t> CConf::getWhiteList() const
@@ -184,12 +192,12 @@ unsigned int CConf::getLogFileLevel() const
 
 std::string CConf::getLogFilePath() const
 {
-  return m_logFilePath;
+        return m_logFilePath;
 }
 
 std::string CConf::getLogFileRoot() const
 {
-  return m_logFileRoot;
+        return m_logFileRoot;
 }
 
 std::string CConf::getDAPNETAddress() const
@@ -211,4 +219,3 @@ bool CConf::getDAPNETDebug() const
 {
 	return m_dapnetDebug;
 }
-
